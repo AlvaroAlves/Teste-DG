@@ -1,0 +1,8 @@
+CREATE DATABASE DG;
+
+CREATE TABLE carros (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    nome VARCHAR(200) NOT NULL,
+    nascimento date NOT NULL now()
+);
+
