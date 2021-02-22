@@ -48,11 +48,14 @@ def salvarPessoa(nome, nascimento):
     
 
 def remove_pessoa(pessoa_id):
-    for pessoa in PESSOAS:
-        if pessoa['id'] == pessoa_id:
-            PESSOAS.remove(pessoa)
+    try:
+        delete_pessoas = "delete from pessoas WHERE id = %s"
+        with connection.cursor() as cursor:
+            cursor.execute(delete_pessoas, (pessoa_id,))
             return True
-    return False
+    except Error as e:
+        print(e)
+        return False
 
 #instanciar o app
 app = Flask(__name__)
@@ -83,7 +86,6 @@ def single_pessoa(pessoa_id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
         post_data = request.get_json()
-        remove_pessoa(pessoa_id)
         nascimento = post_data.get('nascimento')
 
         #PESSOAS.append({
