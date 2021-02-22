@@ -18,7 +18,7 @@
                 <div class="job-left my-8 d-md-flex align-items-center flex-wrap">
                     <div
                     class="img-holder mr-md-4 mb-md-0 mb-4 mx-auto mx-md-0 d-md-none d-lg-flex">
-                        FD
+                      DG
                     </div>
                     <div class="job-content">
                         <h5 class="text-center text-md-left">{{pessoa.nome}}</h5>
