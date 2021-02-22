@@ -6,6 +6,7 @@ from datetime import date
 import uuid
 from mysql.connector import connect, Error
 import json
+import pip 
 
 #configuração
 DEBUG = True
@@ -17,7 +18,7 @@ connection = connect(
     )
 
 #helpers
-def listAllPessoas(connection):
+def listAllPessoas():
     try:
         select_pessoas = "select id, nome, nascimento, YEAR(FROM_DAYS(TO_DAYS(NOW())-TO_DAYS(nascimento))) AS idade from pessoas"
         PESSOAS = []
@@ -36,7 +37,7 @@ def listAllPessoas(connection):
     except Error as e:
         return []
 
-def salvarPessoa(nome, nascimento):
+def salvar_pessoa(nome, nascimento):
     try:
         select_pessoas = 'insert into pessoas(nome, nascimento) VALUES(%s,%s)'
         with connection.cursor() as cursor:
@@ -46,7 +47,6 @@ def salvarPessoa(nome, nascimento):
     except Error as e:
         print(e)
     
-
 def remove_pessoa(pessoa_id):
     try:
         delete_pessoas = "delete from pessoas WHERE id = %s"
@@ -56,6 +56,16 @@ def remove_pessoa(pessoa_id):
     except Error as e:
         print(e)
         return False
+
+def update_pessoa(pessoa_id, nome, nascimento):
+    try:
+        update_pessoas = 'update pessoas set nome = %s, nascimento = %s WHERE id= %s'
+        with connection.cursor() as cursor:
+            datanascimento = datetime.strptime(nascimento, '%d/%m/%Y')
+            cursor.execute(update_pessoas, (nome, datanascimento.strftime('%Y-%m-%d %H:%M:%S'),pessoa_id))
+            connection.commit()
+    except Error as e:
+        print(e)
 
 #instanciar o app
 app = Flask(__name__)
@@ -74,11 +84,11 @@ def all_pessoas():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json()
-        salvarPessoa(post_data.get('nome'),post_data.get('nascimento'))
+        salvar_pessoa(post_data.get('nome'),post_data.get('nascimento'))
 
         response_object['message'] = 'Pessoa Cadastrada!'
     else:
-        response_object['pessoas'] = listAllPessoas(connection)
+        response_object['pessoas'] = listAllPessoas()
     return jsonify(response_object)
 
 @app.route('/pessoas/<pessoa_id>', methods=['PUT', 'DELETE'])
@@ -86,14 +96,8 @@ def single_pessoa(pessoa_id):
     response_object = {'status': 'success'}
     if request.method == 'PUT':
         post_data = request.get_json()
-        nascimento = post_data.get('nascimento')
-
-        #PESSOAS.append({
-        #    'id': uuid.uuid4().hex,
-        #    'nome': post_data.get('nome'),
-        #    'nascimento': nascimento,
-        #    'idade': calcular_idade(datetime.strptime(nascimento, '%d/%m/%Y'))
-        #})
+        update_pessoa(pessoa_id,post_data.get('nome'),post_data.get('nascimento'))
+        
         response_object['message'] = 'Pessoa Atualizada!'
     if request.method == 'DELETE':
         remove_pessoa(pessoa_id)
