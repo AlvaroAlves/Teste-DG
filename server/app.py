@@ -3,7 +3,6 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from datetime import datetime
 from datetime import date
-import uuid
 from mysql.connector import connect, Error
 import json
 import pip 
@@ -30,7 +29,7 @@ def listAllPessoas():
                 PESSOAS.append({
                     'id': row[0],
                     'nome': row[1],
-                    'nascimento': datetime.strftime(row[2], '%d/%m/%Y'),
+                    'nascimento': datetime.strftime(row[2], '%Y-%m-%d'),
                     'idade': row[3]
                 })
             return PESSOAS
@@ -41,8 +40,7 @@ def salvar_pessoa(nome, nascimento):
     try:
         select_pessoas = 'insert into pessoas(nome, nascimento) VALUES(%s,%s)'
         with connection.cursor() as cursor:
-            datanascimento = datetime.strptime(nascimento, '%d/%m/%Y')
-            cursor.execute(select_pessoas, (nome, datanascimento.strftime('%Y-%m-%d %H:%M:%S')))
+            cursor.execute(select_pessoas, (nome, nascimento))
             connection.commit()
     except Error as e:
         print(e)
@@ -61,8 +59,7 @@ def update_pessoa(pessoa_id, nome, nascimento):
     try:
         update_pessoas = 'update pessoas set nome = %s, nascimento = %s WHERE id= %s'
         with connection.cursor() as cursor:
-            datanascimento = datetime.strptime(nascimento, '%d/%m/%Y')
-            cursor.execute(update_pessoas, (nome, datanascimento.strftime('%Y-%m-%d %H:%M:%S'),pessoa_id))
+            cursor.execute(update_pessoas, (nome, nascimento,pessoa_id))
             connection.commit()
     except Error as e:
         print(e)

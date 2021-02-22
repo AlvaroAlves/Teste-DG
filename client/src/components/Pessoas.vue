@@ -1,11 +1,11 @@
 <template>
-  <div class="Container">
+  <div class="container">
     <div class="row">
-      <div class="col-sm-10">
+      <div class="col-sm-12">
         <h1>Cadastro de pessoas</h1>
         <hr>
         <br>
-        <alert :message="message" v-if="showMessage"></alert>
+        <alert :message="message" :variant="variant" v-if="showMessage"></alert>
         <button type="button" class="btn btn-success btn-sm"
                 v-b-modal.pessoa-modal>Adicionar Registro</button>
         <br>
@@ -48,7 +48,7 @@
                       label="Data de Nascimento:"
                       label-for="form-datanascimento-input">
           <b-form-input id="form-datanascimento-input"
-                        type="text"
+                        type="date"
                         v-model="addPessoasForm.nascimento"
                         required
                         placeholder="Data de Nascimento: DD/MM/AAAA"></b-form-input>
@@ -76,10 +76,9 @@
                       label="Data de nascimento:"
                       label-for="form-nascimento-edit-input">
           <b-form-input id="form-nascimento-edit-input"
-                          type="text"
+                          type="date"
                           v-model="editForm.nascimento"
-                          required
-                          placeholder="Data de Nascimento: DD/MM/AAAA">
+                          required>
           </b-form-input>
         </b-form-group>
         <b-button-group>
@@ -132,6 +131,7 @@ export default {
         .then(() => {
           this.getPessoas();
           this.message = 'Pessoa cadastrada com sucesso!';
+          this.variant = 'success';
           this.showMessage = true;
         })
         .catch((error) => {
@@ -145,6 +145,7 @@ export default {
         .then(() => {
           this.getPessoas();
           this.message = 'Dados de pessoa atualizados!';
+          this.variant = 'success';
           this.showMessage = true;
         })
         .catch((error) => {
@@ -158,6 +159,7 @@ export default {
         .then(() => {
           this.getPessoas();
           this.message = 'Pessoa Excluída!';
+          this.variant = 'success';
           this.showMessage = true;
         })
         .catch((error) => {
@@ -178,6 +180,13 @@ export default {
     onSubmitUpdate(evt) {
       evt.preventDefault();
       this.$refs.editPessoaModal.hide();
+      if (new Date().setHours(0, 0, 0, 0) < new Date(this.addPessoasForm.nascimento)) {
+        this.message = 'Data de nascimento inválida!';
+        this.variant = 'danger';
+        this.showMessage = true;
+        this.initForm();
+        return;
+      }
       const payLoad = {
         nome: this.editForm.nome,
         nascimento: this.editForm.nascimento,
@@ -187,6 +196,13 @@ export default {
     onSubmit(evt) {
       evt.preventDefault();
       this.$refs.addPessoasModal.hide();
+      if (new Date().setHours(0, 0, 0, 0) < new Date(this.addPessoasForm.nascimento)) {
+        this.message = 'Data de nascimento inválida!';
+        this.variant = 'danger';
+        this.showMessage = true;
+        this.initForm();
+        return;
+      }
       const payLoad = {
         nome: this.addPessoasForm.nome,
         nascimento: this.addPessoasForm.nascimento,
